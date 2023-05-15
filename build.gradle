@@ -32,27 +32,43 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-node {
-	version = '14.17.0' // Specify the desired Node version
-	npmVersion = '6.14.13' // Specify the desired npm version
-	workDir = file("${project.projectDir}/frontend") // Set the working directory for Node tasks
+def frontendDir = "$projectDir/src/main/frontend"
+
+sourceSets {
+	main {
+		resources { srcDirs = ["$projectDir/src/main/resources"]
+		}
+	}
 }
 
-task appNpmInstall(type: NpmTask) { // Use NpmTask type
-	dependsOn npmSetup
-	args = ['install']
+processResources { dependsOn "copyReactBuildFiles" }
+
+task installReact(type: Exec) {
+	workingDir "$frontendDir"
+	inputs.dir "$frontendDir"
+	group = BasePlugin.BUILD_GROUP
+	if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+		commandLine "npm.cmd", "audit", "fix"
+		commandLine 'npm.cmd', 'install' }
+	else {
+		commandLine "npm", "audit", "fix" commandLine 'npm', 'install'
+	}
 }
 
-task npmBuild(type: NpmTask) { // Use NpmTask type
-	dependsOn appNpmInstall
-	args = ['run', 'build']
+task buildReact(type: Exec) {
+	dependsOn "installReact"
+	workingDir "$frontendDir"
+	inputs.dir "$frontendDir"
+	group = BasePlugin.BUILD_GROUP
+	if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+		commandLine "npm.cmd", "run-script", "build"
+	} else {
+		commandLine "npm", "run-script", "build"
+	}
 }
 
-task copyWebApp(type: Copy) {
-	from "${project.projectDir}/frontend/build"
-	into 'build/resources/main/static/'
+task copyReactBuildFiles(type: Copy) {
+	dependsOn "buildReact"
+	from "$frontendDir/build"
+	into "$projectDir/src/main/resources/static"
 }
-
-npmBuild.dependsOn appNpmInstall
-copyWebApp.dependsOn npmBuild
-compileJava.dependsOn copyWebApp
