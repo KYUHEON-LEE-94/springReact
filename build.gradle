@@ -2,7 +2,6 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.0.6'
 	id 'io.spring.dependency-management' version '1.1.0'
-	id 'com.moowork.node' version '1.4.1'
 }
 
 group = 'helloReact'
@@ -32,19 +31,16 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-// npm install
-task appNpmInstall(type: NpmTask) {
+task appNpmInstall(type: Exec) {
 	workingDir = file("${project.projectDir}/frontend")
-	args = ["install"]
+	commandLine 'npm', 'install'
 }
 
-// npm build
-task npmBuild(type: NpmTask) {
+task npmBuild(type: Exec) {
 	workingDir = file("${project.projectDir}/frontend")
-	args = ["run", "build"]
+	commandLine 'npm', 'run', 'build'
 }
 
-// 빌드된 결과 이동
 task copyWebApp(type: Copy) {
 	from "front-end/build"
 	into 'build/resources/main/static/'
