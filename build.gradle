@@ -35,17 +35,16 @@ tasks.named('test') {
 node {
 	version = '14.17.0' // Specify the desired Node version
 	npmVersion = '6.14.13' // Specify the desired npm version
+	workDir = file("${project.projectDir}/frontend") // Set the working directory for Node tasks
 }
 
 task appNpmInstall(type: NpmTask) { // Use NpmTask type
 	dependsOn npmSetup
-	workingDir file("${project.projectDir}/frontend")
 	args = ['install']
 }
 
 task npmBuild(type: NpmTask) { // Use NpmTask type
 	dependsOn appNpmInstall
-	workingDir file("${project.projectDir}/frontend")
 	args = ['run', 'build']
 }
 
