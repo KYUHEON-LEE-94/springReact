@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.0.6'
 	id 'io.spring.dependency-management' version '1.1.0'
+	id 'com.github.node-gradle.node' version '3.0.0' // Use the node-gradle plugin
 }
 
 group = 'helloReact'
@@ -31,18 +32,25 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-task appNpmInstall(type: Exec) {
-	workingDir = file("${project.projectDir}/frontend")
-	commandLine 'npm', 'install'
+node {
+	version = '14.17.0' // Specify the desired Node version
+	npmVersion = '6.14.13' // Specify the desired npm version
 }
 
-task npmBuild(type: Exec) {
-	workingDir = file("${project.projectDir}/frontend")
-	commandLine 'npm', 'run', 'build'
+task appNpmInstall(type: NpmTask) { // Use NpmTask type
+	dependsOn npmSetup
+	workingDir file("${project.projectDir}/frontend")
+	args = ['install']
+}
+
+task npmBuild(type: NpmTask) { // Use NpmTask type
+	dependsOn appNpmInstall
+	workingDir file("${project.projectDir}/frontend")
+	args = ['run', 'build']
 }
 
 task copyWebApp(type: Copy) {
-	from "front-end/build"
+	from "${project.projectDir}/frontend/build"
 	into 'build/resources/main/static/'
 }
 
