@@ -1,15 +1,15 @@
 package helloReact.studyReact;
 
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
 import java.util.List;
 
-@RestController
+@Controller
 public class ReactController {
-    @GetMapping("/rest")
-    public List<String> Hello(){
-        return Arrays.asList("서버 포트는 8080","리액트 포트는 3030");
+    @GetMapping("/matching")
+    public String Hello(){
+        return "frontend/build/index.html";
     }
 }
